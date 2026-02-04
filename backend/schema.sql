@@ -1,4 +1,6 @@
--- Check current tables (run in psql: \dt)
+-- In your psql session (after connecting):
+--   \dt
+--   SELECT COUNT(*) FROM projects;
 
 -- If no projects table, create it:
 CREATE TABLE IF NOT EXISTS projects (

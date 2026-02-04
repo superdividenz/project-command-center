@@ -10,22 +10,8 @@ const pool = process.env.DATABASE_URL
 
 app.use(express.json());
 
-const health = async (req, res) => {
-  let database = 'disconnected';
-  if (pool) {
-    try {
-      await pool.query('SELECT 1');
-      database = 'connected';
-    } catch (err) {
-      database = 'disconnected';
-    }
-  }
-  res.json({
-    status: 'ok',
-    message: 'Backend running with PostgreSQL',
-    database,
-  });
-};
+const health = (req, res) =>
+  res.json({ status: 'ok', message: 'Backend running' });
 app.get('/health', health);
 app.get('/api/health', health);
 

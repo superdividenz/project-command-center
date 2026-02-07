@@ -1,0 +1,8 @@
+[phases.setup]
+cmds = ["npm install"]
+
+[phases.install]
+cmds = ["npm ci --only=production"]
+
+[start]
+cmd = "node server.js"

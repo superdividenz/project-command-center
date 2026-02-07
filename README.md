@@ -16,7 +16,8 @@ A modern project management dashboard built with **Supabase** for real-time data
 
 ## Live Demo
 
-- **Frontend**: [Deploy to Railway/Vercel/Netlify]
+- **GitHub Repository**: https://github.com/superdividenz/Command-Center
+- **Railway Deployment**: [Deploy using RAILWAY_DEPLOY.md]
 - **Supabase Project**: `https://bgtpfnmxscrbbgmqavup.supabase.co`
 - **Database**: PostgreSQL managed by Supabase
 
@@ -48,8 +49,9 @@ A modern project management dashboard built with **Supabase** for real-time data
 - **Real-time Subscriptions** - WebSocket updates
 
 ### Deployment
-- **Railway/Vercel/Netlify** - Frontend hosting
+- **Railway** - Full-stack hosting (backend + frontend)
 - **Supabase** - Database & backend API hosting
+- **GitHub** - Source code and version control
 
 ## Quick Start
 
@@ -179,11 +181,18 @@ const subscription = supabase
 
 ## Deployment Options
 
-### Frontend Hosting:
-- **Railway** - Simple Node.js hosting (`railway up`)
-- **Vercel** - Static site hosting (`vercel`)
-- **Netlify** - Drag and drop deployment
-- **GitHub Pages** - Free static hosting
+### Railway (Recommended):
+- **Full-stack deployment** - Both backend and frontend
+- **Automatic scaling** - Handles traffic spikes
+- **Continuous deployment** - Deploys on git push
+- **Free tier available** - $5 monthly credit
+
+See [RAILWAY_DEPLOY.md](RAILWAY_DEPLOY.md) for complete deployment guide.
+
+### Alternative Hosting:
+- **Frontend**: Vercel, Netlify, GitHub Pages
+- **Backend**: Railway, Heroku, Render
+- **Database**: Supabase (included), Railway PostgreSQL, Neon
 
 ### Backend/Database:
 - **Supabase** - Handles database, auth, and real-time

@@ -1,12 +1,474 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Project Command Center</title>
-  </head>
-  <body>
-    <h1>Project Command Center</h1>
-    <p>Single HTML file — no dependencies.</p>
-  </body>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header { 
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        h1 { 
+            font-size: 2.5rem; 
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle { 
+            color: #94a3b8; 
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        .stats { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8fafc;
+        }
+        .stat-card { 
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-number { 
+            font-size: 2.5rem; 
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+        .stat-label { 
+            color: #64748b; 
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .projects-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            padding: 30px;
+        }
+        .project-card { 
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-left: 5px solid #3b82f6;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .project-card:hover { 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            transform: translateY(-3px);
+        }
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        }
+        .project-header { 
+            display: flex; 
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .project-title { 
+            font-size: 1.3rem; 
+            font-weight: 600;
+            color: #1e293b;
+            flex: 1;
+        }
+        .status-badge { 
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-planning { background: #f1f5f9; color: #475569; }
+        .status-in_progress { background: #dbeafe; color: #1d4ed8; }
+        .status-blocked { background: #fee2e2; color: #dc2626; }
+        .status-completed { background: #dcfce7; color: #16a34a; }
+        .progress-bar { 
+            height: 10px; 
+            background: #e2e8f0; 
+            border-radius: 5px; 
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-fill { 
+            height: 100%; 
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        .project-details { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .detail-item { 
+            display: flex; 
+            flex-direction: column;
+            gap: 5px;
+        }
+        .detail-label { 
+            color: #64748b; 
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .detail-value { 
+            color: #1e293b; 
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .priority-high { color: #dc2626; }
+        .priority-medium { color: #d97706; }
+        .priority-low { color: #059669; }
+        .loading { 
+            text-align: center; 
+            padding: 60px;
+            color: #64748b;
+        }
+        .error { 
+            text-align: center; 
+            padding: 60px;
+            color: #dc2626;
+            background: #fee2e2;
+            border-radius: 15px;
+            margin: 30px;
+        }
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .connected { background: #dcfce7; color: #16a34a; }
+        .disconnected { background: #fee2e2; color: #dc2626; }
+        footer { 
+            text-align: center; 
+            padding: 30px;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+        }
+        .supabase-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #3ecf8e, #3ecf8e);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="connection" class="connection-status">Checking connection...</div>
+    
+    <div class="container">
+        <header>
+            <h1>🚀 Project Command Center</h1>
+            <p class="subtitle">Track and manage all your projects in one place</p>
+            <div class="supabase-badge">Powered by Supabase</div>
+        </header>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="total-projects">0</div>
+                <div class="stat-label">Total Projects</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="avg-progress">0%</div>
+                <div class="stat-label">Average Progress</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="high-priority">0</div>
+                <div class="stat-label">High Priority</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="in-progress">0</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+        </div>
+        
+        <div id="projects-container">
+            <div class="loading" id="loading">
+                <div style="font-size: 3rem; margin-bottom: 20px;">⏳</div>
+                <p>Loading projects from Supabase...</p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Project Command Center • Built with Supabase + Node.js</p>
+            <p style="margin-top: 10px; font-size: 0.8rem; color: #94a3b8;">
+                Real-time updates • Secure PostgreSQL • Auto-scalable
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'https://bgtpfnmxscrbbgmqavup.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_42DAkhFFQWY5fDiLLW1YPQ_877oL-7E';
+        
+        // Initialize Supabase client
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // DOM elements
+        const connectionEl = document.getElementById('connection');
+        const projectsContainer = document.getElementById('projects-container');
+        const loadingEl = document.getElementById('loading');
+        
+        // Stats elements
+        const totalProjectsEl = document.getElementById('total-projects');
+        const avgProgressEl = document.getElementById('avg-progress');
+        const highPriorityEl = document.getElementById('high-priority');
+        const inProgressEl = document.getElementById('in-progress');
+        
+        // Check Supabase connection
+        async function checkConnection() {
+            try {
+                const { data, error } = await supabase.from('projects').select('count', { count: 'exact', head: true });
+                
+                if (error) {
+                    console.error('Supabase connection error:', error);
+                    connectionEl.className = 'connection-status disconnected';
+                    connectionEl.textContent = '❌ Supabase disconnected';
+                    return false;
+                }
+                
+                connectionEl.className = 'connection-status connected';
+                connectionEl.textContent = '✅ Connected to Supabase';
+                return true;
+            } catch (error) {
+                console.error('Connection check error:', error);
+                connectionEl.className = 'connection-status disconnected';
+                connectionEl.textContent = '❌ Connection error';
+                return false;
+            }
+        }
+        
+        // Load projects from Supabase
+        async function loadProjects() {
+            try {
+                loadingEl.style.display = 'block';
+                
+                const { data: projects, error } = await supabase
+                    .from('projects')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) {
+                    throw new Error(`Supabase error: ${error.message}`);
+                }
+                
+                // Update stats
+                updateStats(projects || []);
+                
+                // Display projects
+                displayProjects(projects || []);
+                
+                loadingEl.style.display = 'none';
+                
+            } catch (error) {
+                console.error('Error loading projects:', error);
+                loadingEl.style.display = 'none';
+                projectsContainer.innerHTML = `
+                    <div class="error">
+                        <div style="font-size: 3rem; margin-bottom: 20px;">⚠️</div>
+                        <h3>Error Loading Projects</h3>
+                        <p>${error.message}</p>
+                        <button onclick="loadProjects()" style="
+                            margin-top: 20px;
+                            padding: 10px 25px;
+                            background: #3b82f6;
+                            color: white;
+                            border: none;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-weight: 600;
+                        ">Retry</button>
+                        <p style="margin-top: 15px; font-size: 0.9rem;">
+                            Make sure the 'projects' table exists in your Supabase database.
+                            Run the SQL from schema.sql in the Supabase SQL editor.
+                        </p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Update statistics
+        function updateStats(projects) {
+            const total = projects.length;
+            totalProjectsEl.textContent = total;
+            
+            if (total > 0) {
+                const avgProgress = Math.round(projects.reduce((sum, p) => sum + p.progress, 0) / total);
+                avgProgressEl.textContent = `${avgProgress}%`;
+                
+                const highPriority = projects.filter(p => p.priority === 'high').length;
+                highPriorityEl.textContent = highPriority;
+                
+                const inProgress = projects.filter(p => p.status === 'in_progress').length;
+                inProgressEl.textContent = inProgress;
+            } else {
+                avgProgressEl.textContent = '0%';
+                highPriorityEl.textContent = '0';
+                inProgressEl.textContent = '0';
+            }
+        }
+        
+        // Display projects in the UI
+        function displayProjects(projects) {
+            if (projects.length === 0) {
+                projectsContainer.innerHTML = `
+                    <div class="loading">
+                        <div style="font-size: 3rem; margin-bottom: 20px;">📋</div>
+                        <h3>No Projects Found</h3>
+                        <p>Add your first project using the Supabase dashboard or API</p>
+                        <p style="margin-top: 15px; font-size: 0.9rem; color: #64748b;">
+                            Run the SQL from schema.sql to create the table and sample data
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '<div class="projects-grid">';
+            
+            projects.forEach(project => {
+                const statusClass = `status-${project.status}`;
+                const priorityClass = `priority-${project.priority}`;
+                
+                html += `
+                    <div class="project-card">
+                        <div class="project-header">
+                            <div class="project-title">${project.name}</div>
+                            <div class="status-badge ${statusClass}">
+                                ${project.status.replace('_', ' ')}
+                            </div>
+                        </div>
+                        
+                        <p style="color: #64748b; margin-bottom: 15px; font-size: 0.95rem;">
+                            ${project.description || 'No description provided'}
+                        </p>
+                        
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${project.progress}%"></div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span style="color: #64748b; font-size: 0.9rem;">Progress</span>
+                            <span style="font-weight: 600; color: #1e293b;">${project.progress}%</span>
+                        </div>
+                        
+                        <div class="project-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Priority</span>
+                                <span class="detail-value ${priorityClass}">
+                                    ${project.priority}
+                                </span>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <span class="detail-label">Next Action</span>
+                                <span class="detail-value">
+                                    ${project.next_action || 'None set'}
+                                </span>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <span class="detail-label">Due Date</span>
+                                <span class="detail-value">
+                                    ${project.due_date ? new Date(project.due_date).toLocaleDateString() : 'No due date'}
+                                </span>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <span class="detail-label">Created</span>
+                                <span class="detail-value">
+                                    ${new Date(project.created_at).toLocaleDateString()}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            projectsContainer.innerHTML = html;
+        }
+        
+        // Initialize
+        async function init() {
+            const connected = await checkConnection();
+            if (connected) {
+                await loadProjects();
+                
+                // Set up real-time subscription
+                const subscription = supabase
+                    .channel('projects-changes')
+                    .on('postgres_changes', 
+                        { event: '*', schema: 'public', table: 'projects' }, 
+                        () => {
+                            console.log('Projects changed, reloading...');
+                            loadProjects();
+                        }
+                    )
+                    .subscribe();
+                
+                console.log('Subscribed to real-time updates');
+            }
+        }
+        
+        // Start the application
+        init();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            checkConnection();
+        }, 30000);
+    </script>
+</body>
 </html>

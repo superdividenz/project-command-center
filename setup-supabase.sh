@@ -1,0 +1,77 @@
+#!/bin/bash
+
+echo "🚀 Command Center - Supabase Setup"
+echo "=================================="
+echo ""
+
+# Check if we're in the right directory
+if [ ! -f "backend/schema.sql" ] || [ ! -f "frontend/index.html" ]; then
+    echo "❌ Error: Must run from Command-Center root directory"
+    exit 1
+fi
+
+echo "📋 Prerequisites:"
+echo "1. Supabase project created (https://supabase.com)"
+echo "2. Supabase URL: https://bgtpfnmxscrbbgmqavup.supabase.co"
+echo "3. Supabase anon key: sb_publishable_42DAkhFFQWY5fDiLLW1YPQ_877oL-7E"
+echo ""
+
+echo "🔧 Step 1: Set up Supabase Database"
+echo "-----------------------------------"
+echo "1. Go to https://app.supabase.com"
+echo "2. Select your project"
+echo "3. Go to 'SQL Editor'"
+echo "4. Copy the SQL from 'backend/schema.sql'"
+echo "5. Run the SQL to create the projects table"
+echo "6. Verify table in 'Table Editor'"
+echo ""
+
+echo "🌐 Step 2: Test Frontend Locally"
+echo "--------------------------------"
+echo "1. Install dependencies:"
+echo "   cd frontend && npm install"
+echo ""
+echo "2. Start frontend:"
+echo "   node server.js"
+echo ""
+echo "3. Open http://localhost:3000"
+echo "4. You should see projects from Supabase"
+echo ""
+
+echo "🚀 Step 3: Deploy to Production"
+echo "-------------------------------"
+echo "Option A - Railway (Recommended):"
+echo "   cd frontend && railway init && railway up"
+echo ""
+echo "Option B - Vercel:"
+echo "   cd frontend && vercel"
+echo ""
+echo "Option C - Netlify:"
+echo "   Drag 'frontend' folder to Netlify"
+echo ""
+
+echo "🔒 Step 4: Security Configuration (Production)"
+echo "----------------------------------------------"
+echo "1. In Supabase, go to 'Authentication' → 'Policies'"
+echo "2. Set up proper Row Level Security (RLS)"
+echo "3. Add your frontend domain to CORS settings"
+echo "4. Consider adding user authentication"
+echo ""
+
+echo "📊 Step 5: Verify Deployment"
+echo "---------------------------"
+echo "1. Open your deployed frontend URL"
+echo "2. Check connection status (green badge)"
+echo "3. Verify projects load from Supabase"
+echo "4. Test real-time updates"
+echo ""
+
+echo "✅ Setup Complete!"
+echo ""
+echo "Quick Reference:"
+echo "- Frontend: http://localhost:3000"
+echo "- Supabase: https://bgtpfnmxscrbbgmqavup.supabase.co"
+echo "- Database: PostgreSQL via Supabase"
+echo "- Real-time: Enabled by default"
+echo ""
+echo "For detailed instructions, see SUPABASE_DEPLOY.md"

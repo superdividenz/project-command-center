@@ -1,0 +1,16 @@
+{
+  "name": "command-center-monorepo",
+  "version": "1.0.0",
+  "description": "Command Center - Monorepo for backend and frontend",
+  "scripts": {
+    "deploy:backend": "echo 'Deploy backend from backend/ directory'",
+    "deploy:frontend": "echo 'Deploy frontend from frontend/ directory'",
+    "postinstall": "echo 'This is a monorepo. Please deploy backend/ and frontend/ as separate Railway services.'"
+  },
+  "keywords": ["command-center", "monorepo"],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

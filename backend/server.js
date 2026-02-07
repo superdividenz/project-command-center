@@ -16,17 +16,23 @@ const supabase = supabaseUrl && supabaseKey
 app.use(cors());
 app.use(express.json());
 
-// Health check
-app.get('/health', (req, res) => {
+// Root endpoint
+app.get('/', (req, res) => {
   res.json({ 
-    status: 'ok', 
-    service: 'command-center-api',
+    message: '🚀 Command Center API',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      projects: '/api/projects',
+      docs: 'https://github.com/superdividenz/Command-Center'
+    },
     supabase: supabase ? 'connected' : 'not-configured',
     timestamp: new Date().toISOString()
   });
 });
 
-app.get('/api/health', (req, res) => {
+// Health check
+app.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     service: 'command-center-api',
@@ -188,6 +194,26 @@ app.delete('/api/projects/:id', async (req, res) => {
     console.error('Server error:', error);
     res.status(500).json({ error: 'Server error', details: error.message });
   }
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ 
+    error: 'Not found',
+    path: req.path,
+    method: req.method,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ 
+    error: 'Internal server error',
+    message: err.message,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Start server
